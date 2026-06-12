@@ -1,27 +1,25 @@
 import pkg from 'pg';
-const { Pool } = pkg;
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const isProduction = process.env.NODE_ENV === 'production';
+const { Pool } = pkg;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-
-  // Railway / cloud Postgres requires SSL
-  ssl: isProduction
+  ssl: process.env.NODE_ENV === 'production'
     ? { rejectUnauthorized: false }
-    : false,
-
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+    : false
 });
 
-// Test connection once at startup
-pool.query('SELECT 1')
-  .then(() => console.log('✅ Database connected successfully'))
-  .catch((err) => console.error('❌ Database connection error:', err));
+// Optional safe test (DO NOT BLOCK APP START)
+pool.connect()
+  .then((client) => {
+    console.log('✅ PostgreSQL connected');
+    client.release();
+  })
+  .catch((err) => {
+    console.error('❌ PostgreSQL connection error:', err.message);
+  });
 
 export default pool;

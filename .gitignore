@@ -1,9 +1,9 @@
 # =========================
 # Environment Variables
 # =========================
+# Environment variables (ignore everything)
 .env
 .env.*
-.env.example
 
 # =========================
 # Node Modules
